@@ -1,6 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
-
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -24,8 +23,23 @@ class _DataFromApiState extends State<DataFromApi> {
   Future getMemeData() async {
     var response =
         await http.get(Uri.parse('https://api.doge-meme.lol/v1/memes/'));
-    Map data = jsonDecode(response.body);
-    print(data);
+
+    Map jsonData = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      //print(jsonData);
+      for (var m in jsonData.keys) {
+        var first = jsonData[m];
+        print(first);
+      }
+
+      return jsonDecode(response.body);
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load album');
+    }
   }
 
   @override
@@ -36,7 +50,7 @@ class _DataFromApiState extends State<DataFromApi> {
         ),
         body: Center(
             child: ElevatedButton(
-          child: Text('Click me'),
+          child: Text('Get data'),
           onPressed: () {
             getMemeData();
           },
@@ -45,7 +59,7 @@ class _DataFromApiState extends State<DataFromApi> {
 }
 
 class Memes {
-  final String submission_url, author, created;
+  final List data;
 
-  Memes(this.submission_url, this.author, this.created);
+  Memes(this.data);
 }
